@@ -10,9 +10,9 @@ function getURLParameter(name) {
 }
 
 // Parâmetros da URL
-const canal = getURLParameter("canal");
 const clientName = getURLParameter("client_name");
-const sessionId = getURLParameter("phone"); // agora o phone é o sessionId
+const sessionId = getURLParameter("phone"); // phone agora é o sessionId
+const canal = getURLParameter("canal");
 
 function appendMessage(content, isUser) {
   const messagesDiv = document.getElementById("messages");
@@ -78,18 +78,24 @@ function sendMessage() {
       body: JSON.stringify({
         chatInput,
         sessionId,
-        canal,
-        clientName
+        clientName,
+        canal
       })
     })
       .then((res) => res.json())
       .then((data) => {
         console.log("Retorno da API:", data);
+
         const resposta =
           Array.isArray(data) && data.length > 0 && data[0].output
-            ? data[0].output
-            : "Resposta inesperada da API.";
-        appendMessage(resposta, false);
+            ? data[0].output.trim()
+            : "";
+
+        if (resposta) {
+          appendMessage(resposta, false);
+        } else {
+          console.warn("Resposta vazia recebida do Webhook.");
+        }
       })
       .catch((error) => {
         console.error("Erro ao enviar:", error);
