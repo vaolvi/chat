@@ -11,7 +11,7 @@ function getURLParameter(name) {
 
 // Parâmetros da URL
 const clientName = getURLParameter("client_name");
-const sessionId = getURLParameter("phone"); // phone agora é o sessionId
+const sessionId = getURLParameter("phone"); // Usado como sessionId
 const canal = getURLParameter("canal");
 
 function appendMessage(content, isUser) {
@@ -27,7 +27,7 @@ function appendMessage(content, isUser) {
   lines.forEach((line) => {
     const trimmed = line.trim();
 
-    // Link clicável
+    // Links clicáveis
     let linkified = trimmed.replace(
       /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
       '<a href="$2" target="_blank">$1</a>'
@@ -82,9 +82,26 @@ function sendMessage() {
         canal
       })
     })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Retorno da API:", data);
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Erro na resposta do servidor: " + res.status);
+        }
+        return res.text(); // captura resposta como texto
+      })
+      .then((text) => {
+        if (!text.trim()) {
+          console.warn("Webhook respondeu com corpo vazio. Nenhuma mensagem será exibida.");
+          return;
+        }
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("Erro ao interpretar JSON:", e);
+          appendMessage("Erro ao interpretar a resposta da API.", false);
+          return;
+        }
 
         const resposta =
           Array.isArray(data) && data.length > 0 && data[0].output
@@ -94,7 +111,7 @@ function sendMessage() {
         if (resposta) {
           appendMessage(resposta, false);
         } else {
-          console.warn("Resposta vazia recebida do Webhook.");
+          console.warn("JSON válido mas sem conteúdo útil.");
         }
       })
       .catch((error) => {
