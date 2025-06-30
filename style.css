@@ -5,6 +5,26 @@ body {
   padding: 0;
 }
 
+.page-header {
+  max-width: 800px;
+  width: 90%;
+  margin: 40px auto 0;
+  padding: 0 20px;
+  text-align: left;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #000000;
+}
+
+.page-header p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #909090;
+}
+
 .chat-container {
   position: fixed;
   top: 100px; /* margem superior fixa */
