@@ -11,7 +11,7 @@ function getURLParameter(name) {
 
 // Parâmetros da URL
 const clientName = getURLParameter("client_name");
-const sessionId = getURLParameter("phone"); // Usado como sessionId
+const sessionId = getURLParameter("client_id"); // Usado como sessionId
 const canal = getURLParameter("canal");
 
 function appendMessage(content, isUser) {
