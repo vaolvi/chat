@@ -27,8 +27,8 @@ body {
 
 .chat-container {
   position: fixed;
-  top: 100px; /* margem superior fixa */
-  bottom: 50px; /* margem inferior = metade da superior */
+  top: 100px;
+  bottom: 50px;
   left: 0;
   right: 0;
   margin: auto;
@@ -47,13 +47,23 @@ body {
   overflow-y: auto;
   margin-bottom: 10px;
   padding: 10px;
-  /*border: 1px solid #d3d3d3;
-  border-radius: 8px;*/
 }
 
 .message {
   display: flex;
   margin-bottom: 10px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message.user {
@@ -82,6 +92,13 @@ body {
   padding: 0px 15px;
   color: #636363;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* Ícone do bot */
+.message.webhook::before {
+  content: "🤖";
+  margin-right: 6px;
+  font-size: 18px;
 }
 
 .input-container {
@@ -122,4 +139,17 @@ input[type="text"] {
 .message li {
   margin-bottom: 4px;
   list-style-type: disc;
+}
+
+/* 🌐 Links bonitos e interativos */
+.message a {
+  color: #0077cc;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.message a:hover {
+  color: #004499;
+  text-decoration: underline;
 }
