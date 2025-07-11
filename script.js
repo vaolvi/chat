@@ -4,7 +4,7 @@ function getURLParameter(name) {
 }
 
 // Parâmetros da URL
-const clientName = getURLParameter("client_name");
+const clientName = getURLParameter("person_name");
 const sessionId = getURLParameter("client_id"); // Usado como sessionId
 const canal = getURLParameter("canal");
 
@@ -20,32 +20,32 @@ function appendMessage(content, isUser) {
 
   lines.forEach((line) => {
     const trimmed = line.trim();
+    let linkified = trimmed;
 
-    // Links no formato [texto](https://...)
-    let linkified = trimmed.replace(
-      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-      '<a href="$2" target="_blank">$1</a>'
-    );
+    // Verifica se já é link (tag <a> ou Markdown) — se for, não transforma
+    const isAlreadyLink = /<a\s+href=|^\[.+\]\(https?:\/\/.+\)/i.test(trimmed);
 
-    // Links seguidos de descrição: "https://link.com Assistir vídeo"
-    linkified = linkified.replace(
-      /(\b(https?:\/\/|www\.)[^\s<>"']+)\s+([^\n]+)/gi,
-      function (_, url, _, descricao) {
-        const cleanURL = url.trim().split(/[>\s]/)[0];
-        const href = cleanURL.startsWith("http") ? cleanURL : `http://${cleanURL}`;
-        return `<a href="${href}" target="_blank">${descricao.trim()}</a>`;
-      }
-    );
+    if (!isAlreadyLink) {
+      // Links com descrição (ex: "https://link.com Assistir vídeo")
+      linkified = linkified.replace(
+        /(\b(https?:\/\/|www\.)[^\s<>"']+)\s+([^\n]+)/gi,
+        function (_, url, _, descricao) {
+          const cleanURL = url.trim().split(/[>\s]/)[0];
+          const href = cleanURL.startsWith("http") ? cleanURL : `http://${cleanURL}`;
+          return `<a href="${href}" target="_blank">${descricao.trim()}</a>`;
+        }
+      );
 
-    // Links puros sem descrição (ex: https://exemplo.com)
-    linkified = linkified.replace(
-      /\b((https?:\/\/|www\.)[^\s<>"']+)/gi,
-      function (match) {
-        const cleanURL = match.trim().split(/[>\s]/)[0];
-        const url = cleanURL.startsWith("http") ? cleanURL : `http://${cleanURL}`;
-        return `<a href="${url}" target="_blank">${url}</a>`;
-      }
-    );
+      // Links puros sem descrição
+      linkified = linkified.replace(
+        /\b((https?:\/\/|www\.)[^\s<>"']+)/gi,
+        function (match) {
+          const cleanURL = match.trim().split(/[>\s]/)[0];
+          const href = cleanURL.startsWith("http") ? cleanURL : `http://${cleanURL}`;
+          return `<a href="${href}" target="_blank">${href}</a>`;
+        }
+      );
+    }
 
     // Negrito com **
     linkified = linkified.replace(
