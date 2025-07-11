@@ -5,7 +5,7 @@ function getURLParameter(name) {
 
 // Parâmetros da URL
 const clientName = getURLParameter("person_name");
-const sessionId = getURLParameter("client_id"); // Usado como sessionId
+const sessionId = getURLParameter("client_id");
 const canal = getURLParameter("canal");
 
 function appendMessage(content, isUser) {
@@ -22,11 +22,17 @@ function appendMessage(content, isUser) {
     const trimmed = line.trim();
     let linkified = trimmed;
 
-    // Verifica se já é link (tag <a> ou Markdown) — se for, não transforma
-    const isAlreadyLink = /<a\s+href=|^\[.+\]\(https?:\/\/.+\)/i.test(trimmed);
+    // Corrige Markdown mal formatado: espaço entre ] e ( e atributos bagunçados
+    linkified = linkified.replace(
+      /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)[^)]*\)/gi,
+      '<a href="$2" target="_blank">$1</a>'
+    );
+
+    // Detecta se já é link válido — evita sobrescrever
+    const isAlreadyLink = /<a\s+href=|^\[.+\]\(https?:\/\/.+\)/i.test(linkified);
 
     if (!isAlreadyLink) {
-      // Links com descrição (ex: "https://link.com Assistir vídeo")
+      // Links com texto descritivo (ex: https://link.com Assistir vídeo)
       linkified = linkified.replace(
         /(\b(https?:\/\/|www\.)[^\s<>"']+)\s+([^\n]+)/gi,
         function (_, url, _, descricao) {
@@ -36,7 +42,7 @@ function appendMessage(content, isUser) {
         }
       );
 
-      // Links puros sem descrição
+      // Links puros
       linkified = linkified.replace(
         /\b((https?:\/\/|www\.)[^\s<>"']+)/gi,
         function (match) {
@@ -48,10 +54,7 @@ function appendMessage(content, isUser) {
     }
 
     // Negrito com **
-    linkified = linkified.replace(
-      /\*\*(.*?)\*\*/g,
-      "<strong>$1</strong>"
-    );
+    linkified = linkified.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
     // Listas
     if (trimmed.startsWith("-")) {
