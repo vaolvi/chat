@@ -21,18 +21,28 @@ function appendMessage(content, isUser) {
   lines.forEach((line) => {
     const trimmed = line.trim();
 
-    // Links em formato [texto](https://...)
+    // Links no formato [texto](https://...)
     let linkified = trimmed.replace(
       /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
       '<a href="$2" target="_blank">$1</a>'
     );
 
-    // Links puros ou mal formatados como "https://... target=_blank"
+    // Links seguidos de descrição: "https://link.com Assistir vídeo"
     linkified = linkified.replace(
-      /\b((https?:\/\/|www\.)[^\s<>]+[^\s.,;!?)\]])/gi,
+      /(\b(https?:\/\/|www\.)[^\s<>"']+)\s+([^\n]+)/gi,
+      function (_, url, _, descricao) {
+        const cleanURL = url.trim().split(/[>\s]/)[0];
+        const href = cleanURL.startsWith("http") ? cleanURL : `http://${cleanURL}`;
+        return `<a href="${href}" target="_blank">${descricao.trim()}</a>`;
+      }
+    );
+
+    // Links puros sem descrição (ex: https://exemplo.com)
+    linkified = linkified.replace(
+      /\b((https?:\/\/|www\.)[^\s<>"']+)/gi,
       function (match) {
-        const cleanMatch = match.split(" ")[0]; // remove atributos mal formatados
-        const url = cleanMatch.startsWith("http") ? cleanMatch : `http://${cleanMatch}`;
+        const cleanURL = match.trim().split(/[>\s]/)[0];
+        const url = cleanURL.startsWith("http") ? cleanURL : `http://${cleanURL}`;
         return `<a href="${url}" target="_blank">${url}</a>`;
       }
     );
