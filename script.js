@@ -27,11 +27,20 @@ function appendMessage(content, isUser) {
   lines.forEach((line) => {
     const trimmed = line.trim();
 
-    // Links clicáveis
-    let linkified = trimmed.replace(
-      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-      '<a href="$2" target="_blank">$1</a>'
-    );
+    // Links clicáveis em formato [texto](link)
+  linkified = trimmed.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" target="_blank">$1</a>'
+  );
+  
+  // Também transforma URLs simples (https://... ou www...) em links clicáveis
+  linkified = linkified.replace(
+    /\b((https?:\/\/|www\.)[^\s<>]+[^\s.,;!?)\]])/gi,
+    function (match) {
+      const url = match.startsWith('http') ? match : `http://${match}`;
+      return `<a href="${url}" target="_blank">${match}</a>`;
+    }
+  );
 
     // Negrito com **
     linkified = linkified.replace(
