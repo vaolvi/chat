@@ -1,9 +1,3 @@
-/*const sessionId = (() => {
-  const random = Math.floor(Math.random() * 1000000);
-  const timestamp = new Date().toISOString();
-  return btoa(timestamp + random);
-})();*/
-
 function getURLParameter(name) {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
@@ -27,20 +21,21 @@ function appendMessage(content, isUser) {
   lines.forEach((line) => {
     const trimmed = line.trim();
 
-    // Links clicáveis em formato [texto](link)
-  linkified = trimmed.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-    '<a href="$2" target="_blank">$1</a>'
-  );
-  
-  // Também transforma URLs simples (https://... ou www...) em links clicáveis
-  linkified = linkified.replace(
-    /\b((https?:\/\/|www\.)[^\s<>]+[^\s.,;!?)\]])/gi,
-    function (match) {
-      const url = match.startsWith('http') ? match : `http://${match}`;
-      return `<a href="${url}" target="_blank">${match}</a>`;
-    }
-  );
+    // Links em formato [texto](https://...)
+    let linkified = trimmed.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank">$1</a>'
+    );
+
+    // Links puros ou mal formatados como "https://... target=_blank"
+    linkified = linkified.replace(
+      /\b((https?:\/\/|www\.)[^\s<>]+[^\s.,;!?)\]])/gi,
+      function (match) {
+        const cleanMatch = match.split(" ")[0]; // remove atributos mal formatados
+        const url = cleanMatch.startsWith("http") ? cleanMatch : `http://${cleanMatch}`;
+        return `<a href="${url}" target="_blank">${url}</a>`;
+      }
+    );
 
     // Negrito com **
     linkified = linkified.replace(
@@ -48,6 +43,7 @@ function appendMessage(content, isUser) {
       "<strong>$1</strong>"
     );
 
+    // Listas
     if (trimmed.startsWith("-")) {
       if (!inList) {
         formatted += "<ul>";
@@ -95,7 +91,7 @@ function sendMessage() {
         if (!res.ok) {
           throw new Error("Erro na resposta do servidor: " + res.status);
         }
-        return res.text(); // captura resposta como texto
+        return res.text();
       })
       .then((text) => {
         if (!text.trim()) {
