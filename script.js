@@ -4,8 +4,8 @@ function getURLParameter(name) {
 }
 
 // Parâmetros da URL
-const person_name = getURLParameter("person_name");
-const client_id = getURLParameter("client_id");
+const clientName = getURLParameter("person_name");
+const sessionId = getURLParameter("client_id");
 const canal = getURLParameter("canal");
 
 function appendMessage(content, isUser) {
@@ -84,7 +84,7 @@ function appendMessage(content, isUser) {
 
 function sendMessage() {
   const input = document.getElementById("userInput");
-  const chat_input = input.value.trim();
+  const chatInput = input.value.trim();
 
   if (chatInput) {
     appendMessage(chatInput, true);
@@ -94,9 +94,9 @@ function sendMessage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_input,
-        client_id,
-        person_name,
+        chatInput,
+        sessionId,
+        clientName,
         canal
       })
     })
