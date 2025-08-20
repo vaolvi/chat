@@ -4,8 +4,8 @@ function getURLParameter(name) {
 }
 
 // Parâmetros da URL
-const clientName = getURLParameter("person_name");
-const sessionId = getURLParameter("client_id");
+const person_name = getURLParameter("person_name");
+const client_id = getURLParameter("client_id");
 const canal = getURLParameter("canal");
 
 function appendMessage(content, isUser) {
@@ -84,19 +84,19 @@ function appendMessage(content, isUser) {
 
 function sendMessage() {
   const input = document.getElementById("userInput");
-  const chatInput = input.value.trim();
+  const chat_input = input.value.trim();
 
-  if (chatInput) {
-    appendMessage(chatInput, true);
+  if (chat_input) {
+    appendMessage(chat_input, true);
     input.value = "";
 
     fetch("https://n8n.apto.vc/webhook/message_client", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chatInput,
-        sessionId,
-        clientName,
+        chat_input,
+        client_id,
+        person_name,
         canal
       })
     })
